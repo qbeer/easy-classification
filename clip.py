@@ -50,20 +50,21 @@ def run(args):
             
     cm = confusion_matrix(gts, np.array(preds).argmax(axis=1))
     disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-    disp.plot(include_values=True)
+    disp.plot(include_values=False)
     
-    plt.savefig('outputs/valid_confusion_matrix.png')
+    plt.savefig('outputs/valid_confusion_matrix.png', dpi=100)
     
     # ROC curves
-    fig, ax = plt.subplots(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=(20, 20))
     for i in range(len(classes)):
         fpr, tpr, _ = roc_curve(np.array(gts) == i, np.array(preds)[:, i])
-        ax.plot(fpr, tpr, label=f'Class {i}')
+        ax.plot(fpr, tpr, label=f'{classes[i]}')
     
     ax.set_xlabel('False Positive Rate')
     ax.set_ylabel('True Positive Rate')
+    ax.legend()
     
-    plt.savefig('outputs/roc_curves.png')
+    plt.savefig('outputs/roc_curves.png', dpi=100)
             
     
 if __name__ == "__main__":
