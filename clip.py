@@ -12,7 +12,7 @@ from sklearn.metrics import roc_curve
 
 def single_image_run(image, model, preprocess, tokenizer, classes):
     image = preprocess(image).unsqueeze(0)
-    text = tokenizer([f"egy {class_name.lower().replace(' ', '').replace('_', ' ')}" for class_name in classes])
+    text = tokenizer([description for description in classes])
 
     with torch.no_grad(), torch.cuda.amp.autocast():
         image_features = model.encode_image(image)
@@ -32,6 +32,12 @@ def run(args):
     ds = ImageFolder('./data', transform=None, target_transform=None, is_valid_file=check_corrupted)
     classes = ds.classes
     
+    import json
+    with open('outputs/class2text.json', 'r') as f:
+        class2text = json.load(f)
+        
+    english_classes = [class2text[class_name.lower().replace(' ', '').replace('_', ' ')] for class_name in classes]
+    
     preds = []
     gts = []
     
@@ -44,7 +50,7 @@ def run(args):
                 print('exception')
                 print(e)
                 continue
-            y_hat = single_image_run(image, model, preprocess, tokenizer, classes)
+            y_hat = single_image_run(image, model, preprocess, tokenizer, english_classes)
             preds.append(y_hat)
             gts.append(ds.classes.index(image_dir))
             
